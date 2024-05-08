@@ -41,10 +41,12 @@ namespace net_ef_videogame
                     Console.WriteLine("2. Search for a videogame by ID");
                     Console.WriteLine("3. Search for videogames by name");
                     Console.WriteLine("4. Delete a videogame");
-                    Console.WriteLine("5. Exit");
+                    Console.WriteLine("5. Insert a new software house");
+                    Console.WriteLine("6. Print all videogames of a software house");
+                    Console.WriteLine("7. Exit");
 
                     int command = int.Parse(Console.ReadLine());
-                    if (command > 6 || command < 1) throw new Exception("ERROR: invalid command");
+                    if (command > 7 || command < 1) throw new Exception("ERROR: invalid command");
                     switch (command)
                     {
                         // Insert new videogame
@@ -224,8 +226,119 @@ namespace net_ef_videogame
                             }
                             break;
 
-                        // exit
+                        // insert a new software house
                         case 5:
+                            string softwareHouseName;
+                            string softwareHousePIva;
+                            string softwareHouseCity;
+                            string softwareHouseCountry;
+
+                            // name
+                            while (true)
+                            {
+                                try
+                                {
+                                    Console.Write("Enter the name of the software house: ");
+                                    softwareHouseName = Console.ReadLine();
+                                    if (string.IsNullOrWhiteSpace(softwareHouseName)) throw new Exception("ERROR: name is invalid");
+                                    break;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+
+                            // piva
+                            while (true)
+                            {
+                                try
+                                {
+                                    Console.Write("Enter the PIVA of the software house: ");
+                                    softwareHousePIva = Console.ReadLine();
+                                    if (string.IsNullOrWhiteSpace(softwareHousePIva)) throw new Exception("ERROR: PIVA is invalid");
+                                    if (softwareHousePIva.Length != 11) throw new Exception("ERROR: PIVA must have 11 characters");
+                                    break;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+
+                            // city
+                            while (true)
+                            {
+                                try
+                                {
+                                    Console.Write("Enter the city of the software house: ");
+                                    softwareHouseCity = Console.ReadLine();
+                                    if (string.IsNullOrWhiteSpace(softwareHouseCity)) throw new Exception("ERROR: city is invalid");
+                                    break;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+
+                            // country
+                            while (true)
+                            {
+                                try
+                                {
+                                    Console.Write("Enter the country of the software house: ");
+                                    softwareHouseCountry = Console.ReadLine();
+                                    if (string.IsNullOrWhiteSpace(softwareHouseCountry)) throw new Exception("ERROR: country is invalid");
+                                    break;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+
+                            VideogameManager.InsertNewSoftwareHouse(softwareHouseName, softwareHousePIva, softwareHouseCity, softwareHouseCountry);
+                            ConsoleTable consoleTable = new("Name", "PIVA", "City", "Country");
+                            consoleTable.AddRow(softwareHouseName, softwareHousePIva, softwareHouseCity, softwareHouseCountry);
+                            Console.WriteLine(consoleTable);
+                            break;
+
+                        // print all games of a software house
+                        case 6:
+                            // softwareHouseId
+                            while (true)
+                            {
+                                try
+                                {
+                                    Console.WriteLine("Select a software house from the list below: ");
+                                    ConsoleTable tableHouses = new("ID", "Name", "Country");
+                                    using VideogameContext db = new();
+                                    if (!db.SoftwareHouses.Any()) throw new Exception("ERROR: Software Houses not found");
+                                    List<SoftwareHouse> houses = db.SoftwareHouses.ToList();
+                                    foreach (SoftwareHouse house in houses)
+                                        tableHouses.AddRow(house.Id, house.Name, house.Country);
+                                    Console.WriteLine(tableHouses);
+                                    Console.Write("ID: ");
+                                    int id = int.Parse(Console.ReadLine());
+                                    if (!VideogameManager.IsSoftwareHouse(id)) throw new Exception("ERROR: Software House not found");
+                                    List<Videogame> videogames = VideogameManager.GetVideogamesBySoftwareHouseId(id);
+                                    ConsoleTable tableVideogames2 = new("ID", "Name", "Overview", "Release Date", "Created At", "Updated At");
+                                    foreach (Videogame videogame in videogames)
+                                        tableVideogames2.AddRow(videogame.Id, videogame.Name, videogame.Overview, videogame.ReleaseDate, videogame.CreatedAt, videogame.UpdatedAt);
+                                    Console.WriteLine($"Games of <{db.SoftwareHouses.Find(id).Name}>:");
+                                    Console.WriteLine(tableVideogames2);
+                                    break;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+                            break;
+
+                        // exit
+                        case 7:
                             Environment.Exit(0);
                             break;
 
