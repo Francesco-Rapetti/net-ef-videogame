@@ -26,19 +26,39 @@ namespace net_ef_videogame
             }
         }
 
+        public static void InsertNewSoftwareHouse(string name, string pIva, string city, string country)
+        {
+            try
+            {
+                // validation
+                if (string.IsNullOrWhiteSpace(name)) throw new Exception("ERROR: name is invalid");
+                if (string.IsNullOrWhiteSpace(pIva)) throw new Exception("ERROR: pIva is invalid");
+                if (pIva.Length != 11) throw new Exception("ERROR: pIva must have 11 characters");
+                if (string.IsNullOrWhiteSpace(city)) throw new Exception("ERROR: city is invalid");
+                if (string.IsNullOrWhiteSpace(country)) throw new Exception("ERROR: country is invalid");
+
+                using VideogameContext db = new();
+                db.Add(new SoftwareHouse(name, pIva, city, country));
+                db.SaveChanges();
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         public static Videogame GetVideogameById(int id)
         {
             // validation
-            if (id <= 0) throw new Exception("ID must be positive");
+            if (id <= 0) throw new Exception("ERROR: ID must be positive");
             
             using VideogameContext db = new();
-            return db.Videogames.Find(id) ?? throw new Exception("Videogame not found");
+            return db.Videogames.Find(id) ?? throw new Exception("ERROR: Videogame not found");
         }
 
         public static List<Videogame> GetVideogamesByName(string name)
         {
             // validation
-            if (string.IsNullOrWhiteSpace(name)) throw new Exception("name is invalid");
+            if (string.IsNullOrWhiteSpace(name)) throw new Exception("ERROR: name is invalid");
             
             using VideogameContext db = new();
             return db.Videogames.Where(x => x.Name.Contains(name)).ToList();
@@ -47,12 +67,22 @@ namespace net_ef_videogame
         public static void DeleteVideogame(int id)
         {
             // validation
-            if (id <= 0) throw new Exception("ID must be positive");
+            if (id <= 0) throw new Exception("ERROR: ID must be positive");
 
             using VideogameContext db = new();
-            Videogame videogame = db.Videogames.Find(id) ?? throw new Exception("Videogame not found");
+            Videogame videogame = db.Videogames.Find(id) ?? throw new Exception("ERROR: Videogame not found");
             db.Remove(videogame);
             db.SaveChanges();
+        }
+
+        public static List<Videogame> GetVideogamesBySoftwareHouseId(int id)
+        {
+            // validation
+            if (id <= 0) throw new Exception("ERROR: ID must be positive");
+            if (!IsSoftwareHouse(id)) throw new Exception("ERROR: Software house not found");
+
+            using VideogameContext db = new();
+            return db.Videogames.Where(x => x.SoftwareHouseId == id).ToList();
         }
 
         private static void Validation(string name, string overview, int softwareHouseId, DateTime releaseDate)
@@ -60,10 +90,10 @@ namespace net_ef_videogame
             try
             {
                 // validation
-                if (typeof(DateTime) != releaseDate.GetType()) throw new Exception("value of releaseDate is not a DateTime");
-                if (string.IsNullOrWhiteSpace(name)) throw new Exception("name is invalid");
-                if (string.IsNullOrWhiteSpace(overview)) throw new Exception("overview is invalid");
-                if (!IsSoftwareHouse(softwareHouseId)) throw new Exception("Software house not found");
+                if (typeof(DateTime) != releaseDate.GetType()) throw new Exception("ERROR: value of releaseDate is not a DateTime");
+                if (string.IsNullOrWhiteSpace(name)) throw new Exception("ERROR: name is invalid");
+                if (string.IsNullOrWhiteSpace(overview)) throw new Exception("ERROR: overview is invalid");
+                if (!IsSoftwareHouse(softwareHouseId)) throw new Exception("ERROR: Software house not found");
             }
             catch (Exception ex)
             {
@@ -82,7 +112,7 @@ namespace net_ef_videogame
                 }
                 else
                 {
-                    throw new Exception("SoftwareHouse not found");
+                    throw new Exception("ERROR: SoftwareHouse not found");
                 }
             }
             catch (Exception)
