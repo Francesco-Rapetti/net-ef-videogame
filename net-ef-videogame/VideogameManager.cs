@@ -82,7 +82,8 @@ namespace net_ef_videogame
             if (!IsSoftwareHouse(id)) throw new Exception("ERROR: Software house not found");
 
             using VideogameContext db = new();
-            return db.Videogames.Where(x => x.SoftwareHouseId == id).ToList();
+            // return db.Videogames.Where(x => x.SoftwareHouseId == id).ToList();
+            return db.SoftwareHouses.Where(x => x.Id == id).SelectMany(x => x.Videogames).ToList();
         }
 
         private static void Validation(string name, string overview, int softwareHouseId, DateTime releaseDate)
